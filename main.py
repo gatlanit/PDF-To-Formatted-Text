@@ -1,20 +1,51 @@
 from pdf2image import convert_from_path
 import pytesseract
+import re
+from concurrent.futures import ThreadPoolExecutor
 
-# Extract text from an image-based PDF file
+# Precompiled regex patterns
+patterns = [
+    (re.compile(r"^.*?JUDGE:\s*", flags=re.DOTALL), ""),
+    (re.compile(r"Case.*?Page \d+ of \d+\n"), ""),
+    (re.compile(r"^\d+\s*$", flags=re.MULTILINE), ""),
+    (re.compile(r"\n{2,}"), "\n"),
+    (re.compile(r"[ \t]{2,}"), " "),
+    (re.compile(r'\([^)]*\)'), '')
+]
+
+def clean_text(text):
+    for pattern, replacement in patterns:
+        text = pattern.sub(replacement, text)
+    return text.strip()
+
+def reformat_text(text):
+    lines = text.split('\n')
+    reformatted = []
+    current_line = ""
+    for line in lines:
+        if re.match(r"^[A-Z]+:", line):
+            if current_line:
+                reformatted.append(current_line.strip())
+            current_line = f"{line.strip()}"
+        else:
+            current_line += f" {line.strip()}"
+    if current_line:
+        reformatted.append(current_line.strip())
+    return '\n'.join(reformatted)
+
+def ocr_image(image):
+    return pytesseract.image_to_string(image, config="--psm 6 --oem 3")
+
 def extract_text_from_image_pdf(pdf_path):
-    extracted_text = []
-    images = convert_from_path(pdf_path, dpi=300)
-    for page_number, image in enumerate(images, start=1):
-        print(f"Processing page {page_number}...")
-        text = pytesseract.image_to_string(image)
-        extracted_text.append(text)
+    images = convert_from_path(pdf_path, dpi=150, thread_count=4)
+    with ThreadPoolExecutor() as executor:
+        extracted_text = list(executor.map(ocr_image, images))
     return "\n".join(extracted_text)
 
-# Main processing
 pdf_path = 'Test.pdf'
 raw_text = extract_text_from_image_pdf(pdf_path)
+formatted_text = clean_text(raw_text)
+final_output = reformat_text(formatted_text)
 
-# Save the reformatted text to a file
 with open('output.txt', 'w') as file:
-    file.write(raw_text)
+    file.write(final_output)
