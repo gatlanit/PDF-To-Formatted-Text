@@ -5,18 +5,22 @@ from concurrent.futures import ThreadPoolExecutor
 
 # Precompiled regex patterns
 patterns = [
-    (re.compile(r"^.*?JUDGE:\s*", flags=re.DOTALL), ""),
-    (re.compile(r"Case.*?Page \d+ of \d+\n"), ""),
-    (re.compile(r"^\d+\s*$", flags=re.MULTILINE), ""),
-    (re.compile(r"\n{2,}"), "\n"),
-    (re.compile(r"[ \t]{2,}"), " "),
-    (re.compile(r'\([^)]*\)'), '')
+    (re.compile(r"^.*?JUDGE:\s*", flags=re.DOTALL), ""),  # Remove JUDGE:
+    (re.compile(r"Case.*?Page \d+ of \d+\n"), ""), # Remove page number
+    (re.compile(r"^\d+\s*$", flags=re.MULTILINE), ""), # Remove standalone numbers
+    (re.compile(r"\n{2,}"), "\n"), # Remove mutliple new lines
+    (re.compile(r"[ \t]{2,}"), " "), # Remove multiple spaces
+    (re.compile(r'\([^)]*\)'), '') # Remove parentehsis and its contents
 ]
 
 def clean_text(text):
+    # Remove Hearing closed
+    text = re.sub(r"\(\s*The\s+Hearing\s+closed\s+at.*$", "", text, flags=re.DOTALL | re.IGNORECASE)
+    
     for pattern, replacement in patterns:
         text = pattern.sub(replacement, text)
-    return text.strip()
+    return text.strip()  # Remove leading/trailing whitespace
+
 
 def reformat_text(text):
     lines = text.split('\n')
