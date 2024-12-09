@@ -16,7 +16,6 @@ patterns = [
 def clean_text(text):
     # Remove Hearing closed
     text = re.sub(r"\(\s*The\s+Hearing\s+closed\s+at.*$", "", text, flags=re.DOTALL | re.IGNORECASE)
-    
     for pattern, replacement in patterns:
         text = pattern.sub(replacement, text)
     return text.strip()  # Remove leading/trailing whitespace
