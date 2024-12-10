@@ -44,11 +44,11 @@ def extract_text_from_image_pdf(pdf_path):
         extracted_text = list(executor.map(ocr_image, images))
     return "\n".join(extracted_text)
 
-for i in range(5):
-    pdf_path = f'pdfs/{i+1}.pdf'
+for i in range(9):
+    pdf_path = f'test/{i+1}.pdf'
     raw_text = extract_text_from_image_pdf(pdf_path)
     formatted_text = clean_text(raw_text)
     final_output = reformat_text(formatted_text)
 
-    with open(f'outputs/{i+1}.txt', 'w') as file:
+    with open(f'outputsTEST/{i+1}.txt', 'w') as file:
         file.write(final_output)
