@@ -14,8 +14,7 @@ patterns = [
 ]
 
 def clean_text(text):
-    # Remove Hearing closed
-    text = re.sub(r"\(\s*The\s+Hearing\s+closed\s+at.*$", "", text, flags=re.DOTALL | re.IGNORECASE)
+    text = re.sub(r"\(\s*The\s+Hearing\s+closed\s+at.*$", "", text, flags=re.DOTALL | re.IGNORECASE) # Remove Hearing closed
     for pattern, replacement in patterns:
         text = pattern.sub(replacement, text)
     return text.strip()  # Remove leading/trailing whitespace
@@ -45,10 +44,11 @@ def extract_text_from_image_pdf(pdf_path):
         extracted_text = list(executor.map(ocr_image, images))
     return "\n".join(extracted_text)
 
-pdf_path = 'Test.pdf'
-raw_text = extract_text_from_image_pdf(pdf_path)
-formatted_text = clean_text(raw_text)
-final_output = reformat_text(formatted_text)
+for i in range(5):
+    pdf_path = f'pdfs/{i+1}.pdf'
+    raw_text = extract_text_from_image_pdf(pdf_path)
+    formatted_text = clean_text(raw_text)
+    final_output = reformat_text(formatted_text)
 
-with open('output.txt', 'w') as file:
-    file.write(final_output)
+    with open(f'outputs/{i+1}.txt', 'w') as file:
+        file.write(final_output)
