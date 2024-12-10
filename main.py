@@ -39,8 +39,8 @@ def ocr_image(image):
     return pytesseract.image_to_string(image, config="--psm 6 --oem 3")
 
 def extract_text_from_image_pdf(pdf_path):
-    images = convert_from_path(pdf_path, dpi=150, thread_count=4)
-    with ThreadPoolExecutor() as executor:
+    images = convert_from_path(pdf_path, dpi=150, thread_count=4) # Run with 150 DPI resolution and with 4 threads
+    with ThreadPoolExecutor() as executor: # Run multithreaded
         extracted_text = list(executor.map(ocr_image, images))
     return "\n".join(extracted_text)
 
