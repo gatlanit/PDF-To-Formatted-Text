@@ -3,9 +3,14 @@ import pytesseract
 import re
 from concurrent.futures import ThreadPoolExecutor
 
+# Credits
+    # Nitin Gatla
+
 '''
 TODO: 
-    Hopefully find a Hugging face model or something similar for typo corrections 
+    Figure out a way to spell check this. Few ideas:
+        - Use ollama and somehow have it return back corrected text
+        - Find a hugging face model
 
     Current error rate on example files (55%)
 '''
