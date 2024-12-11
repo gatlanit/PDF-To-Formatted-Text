@@ -3,6 +3,16 @@ import pytesseract
 import re
 from concurrent.futures import ThreadPoolExecutor
 
+'''
+
+TODO: 
+    Hopefully find a Hugging face model or something similar for typo corrections 
+
+    Current error rate on example files (55%)
+
+'''
+
+
 test = False
 
 # Precompiled regex patterns
