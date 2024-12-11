@@ -3,6 +3,8 @@ import pytesseract
 import re
 from concurrent.futures import ThreadPoolExecutor
 
+test = False
+
 # Precompiled regex patterns
 patterns = [
     (re.compile(r"^.*?JUDGE:\s*", flags=re.DOTALL), ""),  # Remove JUDGE:
@@ -17,15 +19,15 @@ def clean_text(text):
     text = re.sub(r"\(\s*The\s+Hearing\s+closed\s+at.*$", "", text, flags=re.DOTALL | re.IGNORECASE) # Remove Hearing closed
     for pattern, replacement in patterns:
         text = pattern.sub(replacement, text)
-    return text.strip()  # Remove leading/trailing whitespace
-
+    
+    return text.strip()  # Remove leading and trailing whitespace
 
 def reformat_text(text):
     lines = text.split('\n')
     reformatted = []
     current_line = ""
     for line in lines:
-        if re.match(r"^[A-Z]+:", line):
+        if re.match(r"^(ALJ|ATTY|CLMT|ME|VE):", line):
             if current_line:
                 reformatted.append(current_line.strip())
             current_line = f"{line.strip()}"
@@ -44,11 +46,21 @@ def extract_text_from_image_pdf(pdf_path):
         extracted_text = list(executor.map(ocr_image, images))
     return "\n".join(extracted_text)
 
-for i in range(9):
-    pdf_path = f'test/{i+1}.pdf'
-    raw_text = extract_text_from_image_pdf(pdf_path)
-    formatted_text = clean_text(raw_text)
-    final_output = reformat_text(formatted_text)
+if test:
+    for i in range(9):
+        pdf_path = f'test/{i+1}.pdf'
+        raw_text = extract_text_from_image_pdf(pdf_path)
+        formatted_text = clean_text(raw_text)
+        final_output = reformat_text(formatted_text)
+    
+        with open(f'outputsTEST/{i+1}.txt', 'w') as file:
+            file.write(final_output)
+else:
+    for i in range(5):
+        pdf_path = f'pdfs/{i+1}.pdf'
+        raw_text = extract_text_from_image_pdf(pdf_path)
+        formatted_text = clean_text(raw_text)
+        final_output = reformat_text(formatted_text)
 
-    with open(f'outputsTEST/{i+1}.txt', 'w') as file:
-        file.write(final_output)
+        with open(f'outputs/{i+1}.txt', 'w') as file:
+            file.write(final_output)
