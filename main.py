@@ -2,18 +2,19 @@ from pdf2image import convert_from_path
 import pytesseract
 import re
 from concurrent.futures import ThreadPoolExecutor
+from transformers import pipeline
+import torch
 
 '''
-
 TODO: 
     Hopefully find a Hugging face model or something similar for typo corrections 
 
     Current error rate on example files (55%)
-
 '''
 
-
 test = False
+
+fix_spelling = pipeline("text2text-generation",model="oliverguhr/spelling-correction-english-base", device=torch.device("mps"))
 
 # Precompiled regex patterns
 patterns = [
@@ -26,7 +27,7 @@ patterns = [
 ]
 
 def clean_text(text):
-    text = re.sub(r"\(\s*The\s+Hearing\s+closed\s+at.*$", "", text, flags=re.DOTALL | re.IGNORECASE) # Remove Hearing closed
+    text = re.sub(r"\(\s*The\s+Hearing\s+closed\s+at.*$", "", text, flags=re.DOTALL | re.IGNORECASE) # Remove Hearing closed at the end
     for pattern, replacement in patterns:
         text = pattern.sub(replacement, text)
     
