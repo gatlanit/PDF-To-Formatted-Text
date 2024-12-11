@@ -2,8 +2,6 @@ from pdf2image import convert_from_path
 import pytesseract
 import re
 from concurrent.futures import ThreadPoolExecutor
-from transformers import pipeline
-import torch
 
 '''
 TODO: 
@@ -13,8 +11,6 @@ TODO:
 '''
 
 test = False
-
-fix_spelling = pipeline("text2text-generation",model="oliverguhr/spelling-correction-english-base", device=torch.device("mps"))
 
 # Precompiled regex patterns
 patterns = [
